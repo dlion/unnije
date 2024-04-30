@@ -1,4 +1,4 @@
-package builder
+package packet
 
 func NewQuery(header *Header, question *Question) []byte {
 	var query []byte

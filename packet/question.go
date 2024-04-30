@@ -1,8 +1,9 @@
-package builder
+package packet
 
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 const TYPE_A uint16 = 1
@@ -14,11 +15,11 @@ type Question struct {
 	QClass uint16
 }
 
-func NewQuestion(QName []byte, QType, QClass uint16) *Question {
+func NewQuestion(qname string, qtype, qclass uint16) *Question {
 	return &Question{
-		QName:  EncodeDnsName(QName),
-		QType:  QType,
-		QClass: QClass,
+		QName:  encodeDnsName([]byte(qname)),
+		QType:  qtype,
+		QClass: qclass,
 	}
 }
 
@@ -31,13 +32,19 @@ func (q *Question) ToBytes() []byte {
 	return encodedQuestion.Bytes()
 }
 
-func EncodeDnsName(QName []byte) []byte {
+func (q *Question) Print(n uint16) {
+	fmt.Printf("--- QUESTION %d ---\n", n)
+	fmt.Printf("Name: %s\n", q.QName)
+	fmt.Printf("Type: 0x%X\n", q.QType)
+	fmt.Printf("Class: 0x%X\n", q.QClass)
+}
+
+func encodeDnsName(qname []byte) []byte {
 	var encoded []byte
-	parts := bytes.Split([]byte(QName), []byte{'.'})
+	parts := bytes.Split([]byte(qname), []byte{'.'})
 	for _, part := range parts {
 		encoded = append(encoded, byte(len(part)))
 		encoded = append(encoded, part...)
 	}
-
 	return append(encoded, 0x00)
 }

@@ -3,35 +3,36 @@ package main
 import (
 	"bytes"
 
-	"github.com/dlion/cue/builder"
 	"github.com/dlion/cue/network"
+	"github.com/dlion/cue/packet"
+	response "github.com/dlion/cue/response"
 )
 
 func main() {
-	query := builder.NewQuery(
-		builder.NewHeader(22, builder.RECURSION, 1, 0, 0, 0),
-		builder.NewQuestion([]byte("domenicoluciani.com"), builder.TYPE_A, builder.CLASS_IN),
+	query := packet.NewQuery(
+		packet.NewHeader(22, packet.RECURSION_FLAG, 1, 0, 0, 0),
+		packet.NewQuestion("domenicoluciani.com", packet.TYPE_A, packet.CLASS_IN),
 	)
 	client := network.NewClient("8.8.8.8", 53)
-	response := client.SendQuery(query)
+	dnsResponse := client.SendQuery(query)
 
-	reader := bytes.NewReader(response)
-	responseHeader := builder.ParseHeader(reader)
+	reader := bytes.NewReader(dnsResponse)
+	responseHeader := packet.ParseHeader(reader)
 	responseHeader.Print()
 
 	for q := range responseHeader.QdCount {
-		builder.ParseQuestion(reader).Print(q)
+		response.ParseQuestion(reader).Print(q)
 	}
 
 	for q := range responseHeader.AnCount {
-		builder.ParseRecord(reader).Print(builder.ANSWER, q)
+		response.ParseRecord(reader).Print(packet.ANSWER, q)
 	}
 
 	for q := range responseHeader.NsCount {
-		builder.ParseRecord(reader).Print(builder.AUTHORITIES, q)
+		response.ParseRecord(reader).Print(packet.AUTHORITIES, q)
 	}
 
 	for q := range responseHeader.ArCount {
-		builder.ParseRecord(reader).Print(builder.ADDITIONALS, q)
+		response.ParseRecord(reader).Print(packet.ADDITIONALS, q)
 	}
 }

@@ -1,4 +1,4 @@
-package builder
+package packet
 
 import (
 	"encoding/hex"
@@ -9,8 +9,8 @@ import (
 
 func Test(t *testing.T) {
 	t.Run("Should create a query", func(t *testing.T) {
-		header := NewHeader(22, RECURSION, 1, 0, 0, 0)
-		question := NewQuestion([]byte("dns.google.com"), TYPE_A, CLASS_IN)
+		header := NewHeader(22, RECURSION_FLAG, 1, 0, 0, 0)
+		question := NewQuestion("dns.google.com", TYPE_A, CLASS_IN)
 
 		query := NewQuery(header, question)
 

@@ -1,4 +1,4 @@
-package builder
+package packet
 
 import (
 	"encoding/hex"
@@ -9,7 +9,7 @@ import (
 
 func TestQuestion(t *testing.T) {
 	t.Run("Should encode a question into bytes", func(t *testing.T) {
-		question := NewQuestion([]byte("dns.google.com"), TYPE_A, CLASS_IN)
+		question := NewQuestion("dns.google.com", TYPE_A, CLASS_IN)
 
 		encodedQuestion := question.ToBytes()
 
@@ -19,7 +19,7 @@ func TestQuestion(t *testing.T) {
 	})
 
 	t.Run("Should encode the dns name", func(t *testing.T) {
-		encodedDnsName := EncodeDnsName([]byte("dns.google.com"))
+		encodedDnsName := encodeDnsName([]byte("dns.google.com"))
 		assert.Equal(t, []byte("\x03dns\x06google\x03com\x00"), encodedDnsName)
 	})
 }

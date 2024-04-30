@@ -1,11 +1,12 @@
-package builder
+package packet
 
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
-const RECURSION uint16 = 1 << 8
+const RECURSION_FLAG uint16 = 1 << 8
 
 type Header struct {
 	Id      uint16
@@ -37,4 +38,27 @@ func (h *Header) ToBytes() []byte {
 	binary.Write(encodedHeader, binary.BigEndian, h.ArCount)
 
 	return encodedHeader.Bytes()
+}
+
+func (h *Header) Print() {
+	fmt.Println("--- HEADER ---")
+	fmt.Printf("ID: %v\n", h.Id)
+	fmt.Printf("AnCount: %v\n", h.AnCount)
+	fmt.Printf("ArCount: %v\n", h.ArCount)
+	fmt.Printf("NsCount: %v\n", h.NsCount)
+	fmt.Printf("QdCount: %v\n", h.QdCount)
+	fmt.Printf("Flags: 0x%X\n", h.Flags)
+}
+
+func ParseHeader(reader *bytes.Reader) *Header {
+	var header Header
+
+	binary.Read(reader, binary.BigEndian, &header.Id)
+	binary.Read(reader, binary.BigEndian, &header.Flags)
+	binary.Read(reader, binary.BigEndian, &header.QdCount)
+	binary.Read(reader, binary.BigEndian, &header.AnCount)
+	binary.Read(reader, binary.BigEndian, &header.NsCount)
+	binary.Read(reader, binary.BigEndian, &header.ArCount)
+
+	return &header
 }
