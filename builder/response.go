@@ -30,6 +30,16 @@ func ParseHeader(responseReader *bytes.Reader) *Header {
 	return &header
 }
 
+func (h *Header) Print() {
+	fmt.Println("--- HEADER ---")
+	fmt.Printf("ID: %v\n", h.Id)
+	fmt.Printf("AnCount: %v\n", h.AnCount)
+	fmt.Printf("ArCount: %v\n", h.ArCount)
+	fmt.Printf("NsCount: %v\n", h.NsCount)
+	fmt.Printf("QdCount: %v\n", h.QdCount)
+	fmt.Printf("Flags: 0x%X\n", h.Flags)
+}
+
 func DecodeDnsName(reader *bytes.Reader) string {
 	var parts []string
 
@@ -57,6 +67,13 @@ func ParseQuestion(responseReader *bytes.Reader) *Question {
 	return &question
 }
 
+func (q *Question) Print(n uint16) {
+	fmt.Printf("--- QUESTION %d ---\n", n)
+	fmt.Printf("Name: %s\n", q.QName)
+	fmt.Printf("Type: 0x%X\n", q.QType)
+	fmt.Printf("Class: 0x%X\n", q.QClass)
+}
+
 func ParseRecord(reader *bytes.Reader) *Record {
 	var record Record
 
@@ -70,4 +87,28 @@ func ParseRecord(reader *bytes.Reader) *Record {
 	record.Rdata = fmt.Sprintf("%d.%d.%d.%d", dataBytes[0], dataBytes[1], dataBytes[2], dataBytes[3])
 
 	return &record
+}
+
+const (
+	QUESTION = iota
+	ANSWER
+	AUTHORITIES
+	ADDITIONALS
+)
+
+func (r *Record) Print(t int, n uint16) {
+	switch t {
+	case ANSWER:
+		fmt.Printf("--- ANSWER %d ---\n", n)
+	case AUTHORITIES:
+		fmt.Printf("--- AUTHORITIES %d ---\n", n)
+	case ADDITIONALS:
+		fmt.Printf("---  ADDITIONALS %d ---\n", n)
+	}
+	fmt.Printf("Name: %s\n", r.Name)
+	fmt.Printf("Type: 0x%X\n", r.Type)
+	fmt.Printf("Class: 0x%X\n", r.Class)
+	fmt.Printf("TTL: %d\n", r.TTL)
+	fmt.Printf("Length: %d\n", r.RdLength)
+	fmt.Printf("Data: %s\n", r.Rdata)
 }
