@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"strings"
+	"io"
 )
 
 type Record struct {
@@ -40,27 +40,10 @@ func (h *Header) Print() {
 	fmt.Printf("Flags: 0x%X\n", h.Flags)
 }
 
-func DecodeDnsName(reader *bytes.Reader) string {
-	var parts []string
-
-	for {
-		length, _ := reader.ReadByte()
-		if length == 0 {
-			break
-		}
-
-		part := make([]byte, length)
-		reader.Read(part)
-		parts = append(parts, string(part))
-	}
-
-	return strings.Join(parts, ".")
-}
-
 func ParseQuestion(responseReader *bytes.Reader) *Question {
 	var question Question
 
-	question.QName = []byte(DecodeDnsName(responseReader))
+	question.QName = []byte(decodeName(responseReader))
 	binary.Read(responseReader, binary.BigEndian, &question.QType)
 	binary.Read(responseReader, binary.BigEndian, &question.QClass)
 
@@ -74,16 +57,127 @@ func (q *Question) Print(n uint16) {
 	fmt.Printf("Class: 0x%X\n", q.QClass)
 }
 
+func decodeName(reader *bytes.Reader) string {
+	var name bytes.Buffer
+
+	for {
+		lengthByte, _ := reader.ReadByte()
+
+		if (lengthByte & 0xC0) == 0xC0 {
+
+			nextByte, err := reader.ReadByte()
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+
+			pointer := uint16((uint16(lengthByte) & 0x3F) | uint16(nextByte))
+
+			currentPos, err := reader.Seek(0, io.SeekCurrent)
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+
+			_, err = reader.Seek(int64(pointer), io.SeekStart)
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+
+			decodedName := decodeName(reader)
+			_, err = name.WriteString(decodedName)
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+
+			_, err = reader.Seek(currentPos, io.SeekStart)
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+
+			break
+		} else {
+			label := make([]byte, lengthByte)
+			_, err := reader.Read(label)
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+			_, err = name.Write(label)
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+
+			if lengthByte == 0 {
+				break
+			}
+
+			_, err = name.WriteString(".")
+			if err != nil {
+				fmt.Printf("ERRRR: %v", err)
+				break
+			}
+		}
+	}
+
+	result := name.String()
+	if len(result) > 0 && result[len(result)-1] == '.' {
+		result = result[:len(result)-1]
+	}
+
+	return result
+}
+
 func ParseRecord(reader *bytes.Reader) *Record {
 	var record Record
 
-	reader.Read(make([]byte, 2))
-	binary.Read(reader, binary.BigEndian, &record.Type)
-	binary.Read(reader, binary.BigEndian, &record.Class)
-	binary.Read(reader, binary.BigEndian, &record.TTL)
-	binary.Read(reader, binary.BigEndian, &record.RdLength)
+	record.Name = []byte(decodeName(reader))
+
+	// Read the record.Type (16-bit unsigned integer)
+	var recordType uint16
+	if err := binary.Read(reader, binary.BigEndian, &recordType); err != nil {
+		fmt.Printf("ERRRR: %v", err)
+		return nil
+	}
+	record.Type = recordType
+
+	// Read the record.Class (16-bit unsigned integer)
+	var recordClass uint16
+	if err := binary.Read(reader, binary.BigEndian, &recordClass); err != nil {
+		fmt.Printf("ERRRR: %v", err)
+
+		return nil
+	}
+	record.Class = recordClass
+
+	// Read the record.TTL (32-bit unsigned integer)
+	if err := binary.Read(reader, binary.BigEndian, &record.TTL); err != nil {
+		fmt.Printf("ERRRR: %v", err)
+
+		return nil
+	}
+
+	// Read the record.RdLength (16-bit unsigned integer)
+	var rdLength uint16
+	if err := binary.Read(reader, binary.BigEndian, &rdLength); err != nil {
+		fmt.Printf("ERRRR: %v", err)
+
+		return nil
+	}
+	record.RdLength = rdLength
+
+	// Read the record.Rdata (variable length, based on RdLength)
 	dataBytes := make([]byte, record.RdLength)
-	binary.Read(reader, binary.BigEndian, &dataBytes)
+	if err := binary.Read(reader, binary.BigEndian, &dataBytes); err != nil {
+		fmt.Printf("ERRRR: %v", err)
+
+		return nil
+	}
+
 	record.Rdata = fmt.Sprintf("%d.%d.%d.%d", dataBytes[0], dataBytes[1], dataBytes[2], dataBytes[3])
 
 	return &record

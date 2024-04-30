@@ -23,17 +23,23 @@ func TestResponse(t *testing.T) {
 		}, header)
 	})
 
-	t.Run("Should read domain names from a response", func(t *testing.T) {
-		response, _ := hex.DecodeString("03646e7306676f6f676c6503636f6d0000010001c00c0001000100000214000408080808c00c0001000100000214000408080404")
+	t.Run("Should read domain names from a question", func(t *testing.T) {
+		response, _ := hex.DecodeString("00168080000100020000000003646e7306676f6f676c6503636f6d00") //truncated for readability
+		reader := bytes.NewReader(response)
+		const QUESTION_STARTING_POINT = 12
+		skipResponseTill(t, reader, response, QUESTION_STARTING_POINT)
 
-		dnsName := DecodeDnsName(bytes.NewReader(response))
+		dnsName := decodeName(reader)
 
 		assert.NotEmpty(t, dnsName)
 		assert.Equal(t, "dns.google.com", dnsName)
 	})
 
 	t.Run("Should create a question from a response", func(t *testing.T) {
-		response, _ := hex.DecodeString("03646e7306676f6f676c6503636f6d0000010001c00c0001000100000214000408080808c00c0001000100000214000408080404")
+		response, _ := hex.DecodeString("00168080000100020000000003646e7306676f6f676c6503636f6d0000010001c00c0001000100000214000408080808c00c0001000100000214000408080404")
+		reader := bytes.NewReader(response)
+		const QUESTION_STARTING_POINT = 12
+		skipResponseTill(t, reader, response, QUESTION_STARTING_POINT)
 
 		question := ParseQuestion(bytes.NewReader(response))
 
@@ -46,8 +52,10 @@ func TestResponse(t *testing.T) {
 	})
 
 	t.Run("Should create a record from a response", func(t *testing.T) {
-		response, _ := hex.DecodeString("c00c0001000100000214000408080808c00c0001000100000214000408080404")
+		response, _ := hex.DecodeString("00168080000100020000000003646e7306676f6f676c6503636f6d0000010001c00c0001000100000214000408080808c00c0001000100000214000408080404")
 		reader := bytes.NewReader(response)
+		const RECORD_STARTING_POINT = 32
+		skipResponseTill(t, reader, response, RECORD_STARTING_POINT)
 
 		record := ParseRecord(reader)
 
@@ -67,4 +75,9 @@ func TestResponse(t *testing.T) {
 		assert.Greater(t, record.RdLength, uint16(0))
 		assert.Equal(t, "8.8.4.4", record.Rdata)
 	})
+}
+
+func skipResponseTill(t *testing.T, reader *bytes.Reader, response []byte, startingPoint int64) {
+	t.Helper()
+	reader.ReadAt(response, startingPoint)
 }

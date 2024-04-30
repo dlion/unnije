@@ -14,6 +14,7 @@ func main() {
 	)
 	client := network.NewClient("8.8.8.8", 53)
 	response := client.SendQuery(query)
+
 	reader := bytes.NewReader(response)
 	responseHeader := builder.ParseHeader(reader)
 	responseHeader.Print()

@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 )
 
-const TYPE_A uint16 = 15
+const TYPE_A uint16 = 1
 const CLASS_IN uint16 = 1
 
 type Question struct {
