@@ -3,6 +3,7 @@ package packet
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 )
 
@@ -50,15 +51,23 @@ func (h *Header) Print() {
 	fmt.Printf("Flags: 0x%X\n", h.Flags)
 }
 
-func ParseHeader(reader *bytes.Reader) *Header {
+func ParseHeader(reader *bytes.Reader) (*Header, error) {
 	var header Header
 
 	binary.Read(reader, binary.BigEndian, &header.Id)
 	binary.Read(reader, binary.BigEndian, &header.Flags)
+	switch header.Flags & 0b1111 {
+	case 1:
+		return nil, errors.New("error with the query")
+	case 2:
+		return nil, errors.New("error with the server")
+	case 3:
+		return nil, errors.New("the domain doesn't exist")
+	}
 	binary.Read(reader, binary.BigEndian, &header.QdCount)
 	binary.Read(reader, binary.BigEndian, &header.AnCount)
 	binary.Read(reader, binary.BigEndian, &header.NsCount)
 	binary.Read(reader, binary.BigEndian, &header.ArCount)
 
-	return &header
+	return &header, nil
 }

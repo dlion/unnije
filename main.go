@@ -17,7 +17,7 @@ func main() {
 	dnsResponse := client.SendQuery(query)
 
 	reader := bytes.NewReader(dnsResponse)
-	responseHeader := packet.ParseHeader(reader)
+	responseHeader, _ := packet.ParseHeader(reader)
 	responseHeader.Print()
 
 	for q := range responseHeader.QdCount {
