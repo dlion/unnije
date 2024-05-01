@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/dlion/cue/packet"
+	"github.com/dlion/runne/packet"
 )
 
 func ParseRecord(reader *bytes.Reader) *packet.Record {

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 
-	"github.com/dlion/cue/packet"
+	"github.com/dlion/runne/packet"
 )
 
 func ParseQuestion(reader *bytes.Reader) *packet.Question {

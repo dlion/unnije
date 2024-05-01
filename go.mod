@@ -1,4 +1,4 @@
-module github.com/dlion/cue
+module github.com/dlion/runne
 
 go 1.22.2
 

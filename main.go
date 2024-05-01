@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 
-	"github.com/dlion/cue/network"
-	"github.com/dlion/cue/packet"
-	response "github.com/dlion/cue/response"
+	"github.com/dlion/runne/network"
+	"github.com/dlion/runne/packet"
+	response "github.com/dlion/runne/response"
 )
 
 func main() {
