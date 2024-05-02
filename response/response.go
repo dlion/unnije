@@ -3,6 +3,7 @@ package response
 import (
 	"bytes"
 	"io"
+	"strings"
 )
 
 func decodeName(reader *bytes.Reader) string {
@@ -22,13 +23,13 @@ func decodeName(reader *bytes.Reader) string {
 
 		label := make([]byte, lengthByte)
 		io.ReadFull(reader, label)
-		if name.Len() > 0 {
-			name.WriteByte('.')
-		}
 		name.Write(label)
+		name.WriteByte('.')
+
 	}
 
-	return name.String()
+	result, _ := strings.CutSuffix(name.String(), ".")
+	return result
 }
 
 func getBackTheDomainFromTheHeader(reader *bytes.Reader, lengthByte byte) string {

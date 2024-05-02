@@ -7,6 +7,7 @@ import (
 )
 
 const TYPE_A uint16 = 1
+const TYPE_NS uint16 = 2
 const CLASS_IN uint16 = 1
 
 type Question struct {
