@@ -19,7 +19,15 @@ type DNSPacket struct {
 }
 
 func main() {
-	fmt.Println(resolve("domenicoluciani.com", packet.TYPE_A))
+	domains := os.Args[1:]
+	if len(domains) < 1 {
+		fmt.Println("Usage: ./dns <domain> [<domain> ...]")
+		os.Exit(0)
+	}
+
+	for _, domain := range domains {
+		fmt.Println(resolve(domain, packet.TYPE_A))
+	}
 }
 
 func resolve(domainName string, type_ uint16) string {
@@ -66,7 +74,7 @@ func getDnsPacketFromResponse(dnsResponse []byte) *DNSPacket {
 	reader := bytes.NewReader(dnsResponse)
 	header, err := packet.ParseHeader(reader)
 	if err != nil {
-		fmt.Printf("Can't parse the response header: %v", err)
+		fmt.Printf("Can't parse the response header: %v\n", err)
 		os.Exit(-1)
 	}
 	for range header.QdCount {
