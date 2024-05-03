@@ -44,33 +44,6 @@ func resolve(domainName string, type_ uint16) string {
 	}
 }
 
-func getNameServer(authorities []*packet.Record) string {
-	for _, authority := range authorities {
-		if authority.Type == packet.TYPE_NS {
-			return authority.Rdata
-		}
-	}
-	return ""
-}
-
-func getNameServerIp(additionals []*packet.Record) string {
-	for _, additional := range additionals {
-		if additional.Type == packet.TYPE_A {
-			return additional.Rdata
-		}
-	}
-	return ""
-}
-
-func getAnswer(answers []*packet.Record) string {
-	for _, answer := range answers {
-		if answer.Type == packet.TYPE_A {
-			return answer.Rdata
-		}
-	}
-	return ""
-}
-
 func sendQuery(nameServer, domainName string, type_ uint16) []byte {
 	query := packet.NewQuery(
 		packet.NewHeader(22, 0, 1, 0, 0, 0),
@@ -113,4 +86,31 @@ func getDnsPacketFromResponse(dnsResponse []byte) *DNSPacket {
 	}
 
 	return &DNSPacket{header: header, questions: questions, answers: answers, authorities: authorities, additionals: additionals}
+}
+
+func getAnswer(answers []*packet.Record) string {
+	for _, answer := range answers {
+		if answer.Type == packet.TYPE_A {
+			return answer.Rdata
+		}
+	}
+	return ""
+}
+
+func getNameServerIp(additionals []*packet.Record) string {
+	for _, additional := range additionals {
+		if additional.Type == packet.TYPE_A {
+			return additional.Rdata
+		}
+	}
+	return ""
+}
+
+func getNameServer(authorities []*packet.Record) string {
+	for _, authority := range authorities {
+		if authority.Type == packet.TYPE_NS {
+			return authority.Rdata
+		}
+	}
+	return ""
 }
