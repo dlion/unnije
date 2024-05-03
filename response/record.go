@@ -8,8 +8,17 @@ import (
 	"github.com/dlion/runne/packet"
 )
 
-func ParseRecord(reader *bytes.Reader) *packet.Record {
-	var record packet.Record
+type Record struct {
+	Name     []byte
+	Type     uint16
+	Class    uint16
+	TTL      uint32
+	RdLength uint16
+	Rdata    string
+}
+
+func ParseRecord(reader *bytes.Reader) *Record {
+	var record Record
 	record.Name = []byte(decodeName(reader))
 	binary.Read(reader, binary.BigEndian, &record.Type)
 	binary.Read(reader, binary.BigEndian, &record.Class)

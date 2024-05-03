@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 )
 
 const RECURSION_FLAG uint16 = 1 << 8
@@ -39,16 +38,6 @@ func (h *Header) ToBytes() []byte {
 	binary.Write(encodedHeader, binary.BigEndian, h.ArCount)
 
 	return encodedHeader.Bytes()
-}
-
-func (h *Header) Print() {
-	fmt.Println("--- HEADER ---")
-	fmt.Printf("ID: %v\n", h.Id)
-	fmt.Printf("AnCount: %v\n", h.AnCount)
-	fmt.Printf("ArCount: %v\n", h.ArCount)
-	fmt.Printf("NsCount: %v\n", h.NsCount)
-	fmt.Printf("QdCount: %v\n", h.QdCount)
-	fmt.Printf("Flags: 0x%X\n", h.Flags)
 }
 
 func ParseHeader(reader *bytes.Reader) (*Header, error) {

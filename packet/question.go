@@ -3,7 +3,6 @@ package packet
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 )
 
 const TYPE_A uint16 = 1
@@ -31,13 +30,6 @@ func (q *Question) ToBytes() []byte {
 	binary.Write(encodedQuestion, binary.BigEndian, q.QClass)
 
 	return encodedQuestion.Bytes()
-}
-
-func (q *Question) Print(n uint16) {
-	fmt.Printf("--- QUESTION %d ---\n", n)
-	fmt.Printf("Name: %s\n", q.QName)
-	fmt.Printf("Type: 0x%X\n", q.QType)
-	fmt.Printf("Class: 0x%X\n", q.QClass)
 }
 
 func encodeDnsName(qname []byte) []byte {
