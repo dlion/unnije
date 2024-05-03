@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dlion/runne/network"
-	"github.com/dlion/runne/packet"
-	"github.com/dlion/runne/response"
+	"github.com/dlion/unnije/network"
+	"github.com/dlion/unnije/packet"
+	"github.com/dlion/unnije/response"
 )
 
 type DNSPacket struct {

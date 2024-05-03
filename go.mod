@@ -1,4 +1,4 @@
-module github.com/dlion/runne
+module github.com/dlion/unnije
 
 go 1.22.2
 

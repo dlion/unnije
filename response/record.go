@@ -5,7 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 
-	"github.com/dlion/runne/packet"
+	"github.com/dlion/unnije/packet"
 )
 
 type Record struct {

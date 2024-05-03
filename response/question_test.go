@@ -5,7 +5,7 @@ import (
 	"encoding/hex"
 	"testing"
 
-	"github.com/dlion/runne/packet"
+	"github.com/dlion/unnije/packet"
 	"github.com/stretchr/testify/assert"
 )
 
