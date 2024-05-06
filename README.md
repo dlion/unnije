@@ -1,4 +1,6 @@
-# Unni jè
+# Unni jè 
+
+_(Pronunced `/ˈʊn.ni ʤe/` from Sicilian language)_
 
 Simple DNS Resolver written in Go
 
