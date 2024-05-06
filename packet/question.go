@@ -41,3 +41,13 @@ func encodeDnsName(qname []byte) []byte {
 	}
 	return append(encoded, 0x00)
 }
+
+func ParseQuestion(reader *bytes.Reader) *Question {
+	var question Question
+
+	question.QName = []byte(DecodeName(reader))
+	binary.Read(reader, binary.BigEndian, &question.QType)
+	binary.Read(reader, binary.BigEndian, &question.QClass)
+
+	return &question
+}

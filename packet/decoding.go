@@ -1,4 +1,4 @@
-package response
+package packet
 
 import (
 	"bytes"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func decodeName(reader *bytes.Reader) string {
+func DecodeName(reader *bytes.Reader) string {
 	var name bytes.Buffer
 
 	for {
@@ -40,7 +40,7 @@ func getBackTheDomainFromTheHeader(reader *bytes.Reader, lengthByte byte) string
 
 	reader.Seek(int64(pointer), io.SeekStart)
 
-	decodedName := decodeName(reader)
+	decodedName := DecodeName(reader)
 
 	reader.Seek(currentPos, io.SeekStart)
 

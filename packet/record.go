@@ -1,11 +1,9 @@
-package response
+package packet
 
 import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-
-	"github.com/dlion/unnije/packet"
 )
 
 type Record struct {
@@ -19,16 +17,16 @@ type Record struct {
 
 func ParseRecord(reader *bytes.Reader) *Record {
 	var record Record
-	record.Name = []byte(decodeName(reader))
+	record.Name = []byte(DecodeName(reader))
 	binary.Read(reader, binary.BigEndian, &record.Type)
 	binary.Read(reader, binary.BigEndian, &record.Class)
 	binary.Read(reader, binary.BigEndian, &record.TTL)
 	binary.Read(reader, binary.BigEndian, &record.RdLength)
 	switch record.Type {
-	case packet.TYPE_A:
+	case TYPE_A:
 		record.Rdata = readIP(reader, record.RdLength)
-	case packet.TYPE_NS:
-		record.Rdata = decodeName(reader)
+	case TYPE_NS:
+		record.Rdata = DecodeName(reader)
 	default:
 		record.Rdata = string(readData(reader, record.RdLength))
 	}

@@ -7,15 +7,14 @@ import (
 
 	"github.com/dlion/unnije/network"
 	"github.com/dlion/unnije/packet"
-	"github.com/dlion/unnije/response"
 )
 
 type DNSPacket struct {
 	header      *packet.Header
 	questions   []*packet.Question
-	answers     []*response.Record
-	authorities []*response.Record
-	additionals []*response.Record
+	answers     []*packet.Record
+	additionals []*packet.Record
+	authorities []*packet.Record
 }
 
 func main() {
@@ -66,9 +65,9 @@ func getDnsPacketFromResponse(dnsResponse []byte) *DNSPacket {
 	var (
 		header      *packet.Header
 		questions   []*packet.Question
-		answers     []*response.Record
-		authorities []*response.Record
-		additionals []*response.Record
+		answers     []*packet.Record
+		authorities []*packet.Record
+		additionals []*packet.Record
 	)
 
 	reader := bytes.NewReader(dnsResponse)
@@ -78,25 +77,31 @@ func getDnsPacketFromResponse(dnsResponse []byte) *DNSPacket {
 		os.Exit(-1)
 	}
 	for range header.QdCount {
-		questions = append(questions, response.ParseQuestion(reader))
+		questions = append(questions, packet.ParseQuestion(reader))
 	}
 
 	for range header.AnCount {
-		answers = append(answers, response.ParseRecord(reader))
+		answers = append(answers, packet.ParseRecord(reader))
 	}
 
 	for range header.NsCount {
-		authorities = append(authorities, response.ParseRecord(reader))
+		authorities = append(authorities, packet.ParseRecord(reader))
 	}
 
 	for range header.ArCount {
-		additionals = append(additionals, response.ParseRecord(reader))
+		additionals = append(additionals, packet.ParseRecord(reader))
 	}
 
-	return &DNSPacket{header: header, questions: questions, answers: answers, authorities: authorities, additionals: additionals}
+	return &DNSPacket{
+		header:      header,
+		questions:   questions,
+		answers:     answers,
+		authorities: authorities,
+		additionals: additionals,
+	}
 }
 
-func getAnswer(answers []*response.Record) string {
+func getAnswer(answers []*packet.Record) string {
 	for _, answer := range answers {
 		if answer.Type == packet.TYPE_A {
 			return answer.Rdata
@@ -105,7 +110,7 @@ func getAnswer(answers []*response.Record) string {
 	return ""
 }
 
-func getNameServerIp(additionals []*response.Record) string {
+func getNameServerIp(additionals []*packet.Record) string {
 	for _, additional := range additionals {
 		if additional.Type == packet.TYPE_A {
 			return additional.Rdata
@@ -114,7 +119,7 @@ func getNameServerIp(additionals []*response.Record) string {
 	return ""
 }
 
-func getNameServer(authorities []*response.Record) string {
+func getNameServer(authorities []*packet.Record) string {
 	for _, authority := range authorities {
 		if authority.Type == packet.TYPE_NS {
 			return authority.Rdata

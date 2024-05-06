@@ -1,11 +1,10 @@
-package response
+package packet
 
 import (
 	"bytes"
 	"encoding/hex"
 	"testing"
 
-	"github.com/dlion/unnije/packet"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,8 +18,8 @@ func TestResponse(t *testing.T) {
 		record := ParseRecord(reader)
 
 		assert.NotEmpty(t, record)
-		assert.Equal(t, packet.TYPE_A, record.Type)
-		assert.Equal(t, packet.CLASS_IN, record.Class)
+		assert.Equal(t, TYPE_A, record.Type)
+		assert.Equal(t, CLASS_IN, record.Class)
 		assert.Greater(t, record.TTL, uint32(0))
 		assert.Greater(t, record.RdLength, uint16(0))
 		assert.Equal(t, "8.8.8.8", record.Rdata)
@@ -28,8 +27,8 @@ func TestResponse(t *testing.T) {
 		record = ParseRecord(reader)
 
 		assert.NotEmpty(t, record)
-		assert.Equal(t, packet.TYPE_A, record.Type)
-		assert.Equal(t, packet.CLASS_IN, record.Class)
+		assert.Equal(t, TYPE_A, record.Type)
+		assert.Equal(t, CLASS_IN, record.Class)
 		assert.Greater(t, record.TTL, uint32(0))
 		assert.Greater(t, record.RdLength, uint16(0))
 		assert.Equal(t, "8.8.4.4", record.Rdata)

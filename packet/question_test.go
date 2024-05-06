@@ -1,6 +1,7 @@
 package packet
 
 import (
+	"bytes"
 	"encoding/hex"
 	"testing"
 
@@ -21,5 +22,33 @@ func TestQuestion(t *testing.T) {
 	t.Run("Should encode the dns name", func(t *testing.T) {
 		encodedDnsName := encodeDnsName([]byte("dns.google.com"))
 		assert.Equal(t, []byte("\x03dns\x06google\x03com\x00"), encodedDnsName)
+	})
+
+	t.Run("Should read domain names from a question", func(t *testing.T) {
+		response, _ := hex.DecodeString("00168080000100020000000003646e7306676f6f676c6503636f6d00") //truncated for readability
+		reader := bytes.NewReader(response)
+		const QUESTION_STARTING_POINT = 12
+		skipResponseTill(t, reader, response, QUESTION_STARTING_POINT)
+
+		dnsName := DecodeName(reader)
+
+		assert.NotEmpty(t, dnsName)
+		assert.Equal(t, "dns.google.com", dnsName)
+	})
+
+	t.Run("Should create a question from a response", func(t *testing.T) {
+		response, _ := hex.DecodeString("00168080000100020000000003646e7306676f6f676c6503636f6d0000010001c00c0001000100000214000408080808c00c0001000100000214000408080404")
+		reader := bytes.NewReader(response)
+		const QUESTION_STARTING_POINT = 12
+		skipResponseTill(t, reader, response, QUESTION_STARTING_POINT)
+
+		question := ParseQuestion(bytes.NewReader(response))
+
+		assert.NotEmpty(t, question)
+		assert.Equal(t, &Question{
+			QName:  []byte("dns.google.com"),
+			QType:  TYPE_A,
+			QClass: CLASS_IN,
+		}, question)
 	})
 }
