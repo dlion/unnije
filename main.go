@@ -111,12 +111,7 @@ func getAnswer(answers []*packet.Record) string {
 }
 
 func getNameServerIp(additionals []*packet.Record) string {
-	for _, additional := range additionals {
-		if additional.Type == packet.TYPE_A {
-			return additional.Rdata
-		}
-	}
-	return ""
+	return getAnswer(additionals)
 }
 
 func getNameServer(authorities []*packet.Record) string {
