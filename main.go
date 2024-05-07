@@ -102,22 +102,21 @@ func getDnsPacketFromResponse(dnsResponse []byte) *DNSPacket {
 }
 
 func getAnswer(answers []*packet.Record) string {
-	for _, answer := range answers {
-		if answer.Type == packet.TYPE_A {
-			return answer.Rdata
-		}
-	}
-	return ""
+	return getRecord(answers)
 }
 
 func getNameServerIp(additionals []*packet.Record) string {
-	return getAnswer(additionals)
+	return getRecord(additionals)
 }
 
 func getNameServer(authorities []*packet.Record) string {
-	for _, authority := range authorities {
-		if authority.Type == packet.TYPE_NS {
-			return authority.Rdata
+	return getRecord(authorities)
+}
+
+func getRecord(records []*packet.Record) string {
+	for _, record := range records {
+		if record.Type == packet.TYPE_A || record.Type == packet.TYPE_NS {
+			return record.Rdata
 		}
 	}
 	return ""
